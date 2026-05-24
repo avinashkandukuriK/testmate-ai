@@ -7,7 +7,7 @@ The project is being built in two phases:
 1. Spring Boot powered AI/API/UI/Mobile automation framework
 2. Spring Boot backend + React dashboard + test execution engine
 
-The repository now contains the Phase 1 automation framework foundation and the initial Phase 2 backend/dashboard scaffold.
+The repository now contains the Phase 1 automation framework foundation and the Phase 2 backend/dashboard starter platform.
 
 ---
 
@@ -38,13 +38,18 @@ Phase 2 scaffold:
 
 - Spring Boot application entry point
 - REST endpoints for framework metadata and health
-- REST endpoints for creating and viewing test execution requests
+- REST endpoints for creating and viewing test executions
+- Async Maven/Cucumber execution engine integration
 - In-memory execution tracking service
+- Execution log capture API
+- Report listing and download APIs
 - React dashboard scaffold using Vite
 - Dashboard form for suite/tag/environment/mode selection
 - Dashboard execution history table
+- Dashboard execution details and log viewer
+- CORS support for local React development
 
-GitHub Actions is intentionally manual-only for now.
+GitHub Actions is enabled for backend framework tests and frontend build.
 
 RAG testing is intentionally not implemented in this version.
 
@@ -76,6 +81,7 @@ RAG testing is intentionally not implemented in this version.
 src/main/java/com/testmate/ai
 ├── TestMateAiApplication.java
 └── platform
+    ├── config          # Backend web/CORS configuration
     ├── controller      # REST controllers
     ├── model           # API request/response DTOs
     └── service         # Test execution service layer
@@ -169,6 +175,30 @@ Get execution by id:
 GET http://localhost:8080/api/executions/{executionId}
 ```
 
+Get execution logs:
+
+```bash
+GET http://localhost:8080/api/executions/{executionId}/logs
+```
+
+List available reports:
+
+```bash
+GET http://localhost:8080/api/reports
+```
+
+Download Cucumber report:
+
+```bash
+GET http://localhost:8080/api/reports/cucumber
+```
+
+Download TestMate AI report file:
+
+```bash
+GET http://localhost:8080/api/reports/ai/{fileName}
+```
+
 ---
 
 ## React Dashboard
@@ -193,6 +223,7 @@ The current dashboard can:
 - Create execution requests
 - View in-memory execution history
 - Select suite, tags, environment, and execution mode
+- View selected execution status, command, exit code, and logs
 
 ---
 
@@ -303,28 +334,24 @@ sauce.device.name=Android GoogleAPI Emulator
 
 ## GitHub Actions Status
 
-GitHub Actions is intentionally paused for now.
+GitHub Actions is enabled for:
 
-The workflow is manual-only using:
-
-```yaml
-on:
-  workflow_dispatch:
-```
-
-Automatic push and pull request triggers can be re-enabled later after the framework is fully stable.
+- Backend/framework test execution
+- Frontend dashboard build
+- Cucumber report artifact upload
+- TestMate AI report artifact upload
 
 ---
 
 ## Next Phase 2 Work
 
-- Connect REST execution service to the real Maven/Cucumber execution engine
 - Persist execution history in a database
-- Add report download APIs
-- Add live execution log streaming
+- Add report viewer UI
+- Add live log streaming with WebSocket or Server-Sent Events
 - Add authentication and role-based access
-- Add dashboard report viewer
 - Add environment and device management screens
+- Add execution cancellation support
+- Add scheduler support for recurring test runs
 
 ---
 
