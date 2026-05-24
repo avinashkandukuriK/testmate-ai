@@ -5,7 +5,7 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import com.testmate.ai.config.ConfigReader;
+import com.testmate.ai.core.config.ConfigReader;
 
 public final class WebSessionManager {
 
