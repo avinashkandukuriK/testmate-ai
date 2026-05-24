@@ -6,10 +6,18 @@ public final class FrameworkConfig {
     }
 
     public static String getAiProvider() {
-        return System.getProperty("ai.provider", "mock");
+        return ConfigReader.getOrDefault("ai.provider", "mock");
     }
 
     public static long getDefaultResponseTimeLimitMs() {
-        return Long.parseLong(System.getProperty("ai.response.limit.ms", "3000"));
+        return ConfigReader.getLongOrDefault("ai.response.limit.ms", 3000);
+    }
+
+    public static String getDefaultModel() {
+        return ConfigReader.getOrDefault("ai.default.model", "mock-enterprise-ai");
+    }
+
+    public static String getReportOutputDir() {
+        return ConfigReader.getOrDefault("ai.report.output.dir", "target/testmate-ai-reports");
     }
 }
