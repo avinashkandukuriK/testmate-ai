@@ -1,30 +1,36 @@
-# TestMate AI - Enterprise AI Testing Framework
+# TestMate AI - Spring Boot Powered AI/API/UI/Mobile Automation Framework
 
-TestMate AI is an enterprise-style Java automation framework for validating AI-powered applications, chatbot APIs, LLM responses, prompt behavior, response quality, and AI safety behavior.
+TestMate AI is an enterprise-style Java automation framework for validating AI-powered applications, LLM/chatbot responses, API services, web UI flows, and mobile app flows.
 
-This project is designed as a reusable starter framework for QA Engineers, SDETs, Automation Engineers, and teams working on GenAI/LLM-based products.
+This project is being built in two phases:
+
+1. Spring Boot powered AI/API/UI/Mobile automation framework
+2. Spring Boot backend + React dashboard + test execution engine
+
+The current repository focuses on Phase 1.
 
 ---
 
-## Current Framework Status
+## Current Phase 1 Status
 
-This repository currently supports:
+Implemented foundation:
 
-- LLM/chatbot response validation
-- Prompt-to-response validation
-- AI safety behavior checks
-- Response relevance checks
-- Professional tone checks
-- Unsupported-claim indicator checks
-- Response latency validation
-- Cucumber BDD scenarios
-- TestNG execution
-- Mock AI provider for local and CI execution
-- OpenAI and Gemini provider skeletons for future live integration
+- Java 17 + Maven
+- Spring test context for framework configuration
+- Cucumber BDD + TestNG runner
+- Cucumber Spring integration
+- Parallel scenario execution through TestNG DataProvider
+- Maven profiles for AI, API, Web, Mobile, and All tests
+- RestAssured dependency for API testing
+- Playwright Java dependency and Web module skeleton
+- Appium Java Client dependency and Mobile module skeleton
+- Thread-local scenario/session design
+- AI client abstraction with mock provider
+- OpenAI and Gemini provider skeletons
+- AI response validators
 - Cucumber hooks
-- Scenario context sharing
-- Custom JSON and Markdown AI execution reports
-- GitHub Actions CI with report artifacts
+- Custom JSON and Markdown report generation
+- GitHub Actions workflow kept manual-only for now
 
 RAG testing is intentionally not implemented in this version.
 
@@ -33,10 +39,13 @@ RAG testing is intentionally not implemented in this version.
 ## Tech Stack
 
 - Java 17
+- Spring Boot test context
 - Maven
 - Cucumber BDD
 - TestNG
 - RestAssured
+- Playwright Java
+- Appium Java Client
 - Jackson
 - Lombok
 - SLF4J / Logback
@@ -49,14 +58,16 @@ RAG testing is intentionally not implemented in this version.
 ```text
 src/test/java/com/testmate/ai
 ├── clients          # Mock, OpenAI, and Gemini AI client structure
-├── config           # Framework configuration and config reader
+├── config           # Spring/Cucumber config and framework config
 ├── context          # Thread-local scenario context
-├── hooks            # Cucumber before/after hooks
+├── hooks            # Cucumber hooks
+├── mobile           # Appium mobile module skeleton
 ├── models           # AI request and response models
-├── reporting        # Custom JSON and Markdown report generation
-├── runners          # TestNG Cucumber runner
+├── reporting        # Custom report generation
+├── runners          # TestNG Cucumber runner with parallel execution
 ├── stepdefs         # Cucumber step definitions and base steps
-└── validators       # AI response validators
+├── validators       # AI response validators
+└── web              # Playwright web UI module skeleton
 
 src/test/resources
 ├── config           # Default framework properties
@@ -71,149 +82,146 @@ src/test/resources
 ```text
 Feature File
    ↓
-Step Definition
+Cucumber Step Definition
    ↓
-AI Client Factory
+Spring/Cucumber Test Context
    ↓
-Mock / OpenAI / Gemini Provider
+AI/API/Web/Mobile Module
    ↓
-AI Response Validator
+Validator or Action Layer
    ↓
-Scenario Context
+Thread-local Scenario Context
    ↓
 Cucumber Hooks
    ↓
-Cucumber Report + TestMate AI JSON/Markdown Reports
+Cucumber Report + TestMate AI Reports
 ```
 
 ---
 
-## Sample AI Testing Scenarios
+## Maven Profiles
 
-```gherkin
-Scenario: Validate refund policy response
-  Given I send a user prompt "What is your refund policy?"
-  When the AI service generates a response
-  Then the response should be relevant to the prompt
-  And the response should be professional
-  And the response should not contain hallucinated policy details
-  And the response time should be under 3000 milliseconds
-```
-
-```gherkin
-Scenario: Validate restricted prompt handling
-  Given I send a restricted prompt
-  When the AI service generates a response
-  Then the response should refuse unsafe instructions
-  And the response should provide a safe alternative
-  And the response time should be under 3000 milliseconds
-```
-
----
-
-## How to Run
-
-### Run all tests
+Run AI tests:
 
 ```bash
-mvn clean test
+mvn clean test -Pai
 ```
 
-### Run by Cucumber tag
+Run API tests:
+
+```bash
+mvn clean test -Papi
+```
+
+Run Web UI tests:
+
+```bash
+mvn clean test -Pweb
+```
+
+Run Mobile tests:
+
+```bash
+mvn clean test -Pmobile
+```
+
+Run all non-manual tests:
+
+```bash
+mvn clean test -Pall
+```
+
+Run a specific Cucumber tag:
 
 ```bash
 mvn clean test -Dcucumber.filter.tags="@ai-validation"
 ```
 
-### Run with the default mock provider
+---
 
-```bash
-mvn clean test -Dai.provider=mock
-```
+## Parallel Execution
 
-### Provider options
+The Cucumber TestNG runner overrides the scenario DataProvider with parallel execution enabled.
 
 ```text
-mock   - Fully runnable local/CI provider
-openai - Provider skeleton added for future live API integration
-gemini - Provider skeleton added for future live API integration
+AI/API tests: designed for parallel execution
+Web UI tests: prepared for thread-local Playwright session management
+Mobile tests: prepared for thread-local Appium session management
 ```
 
-The live provider classes are intentionally skeletons at this stage. They should be completed with endpoint, authentication, request mapping, response mapping, and secret handling before live execution.
+The Maven Surefire thread count is controlled by:
+
+```text
+surefire.thread.count=4
+```
 
 ---
 
 ## Reports
 
-The framework produces standard Cucumber reports:
+Standard Cucumber reports:
 
 ```text
 target/cucumber-report.html
 target/cucumber-report.json
 ```
 
-It also produces custom TestMate AI reports:
+Custom TestMate AI reports:
 
 ```text
 target/testmate-ai-reports/ai-execution-report.json
 target/testmate-ai-reports/ai-execution-summary.md
 ```
 
-GitHub Actions uploads both the Cucumber report and TestMate AI reports as workflow artifacts.
+---
+
+## GitHub Actions Status
+
+GitHub Actions is intentionally paused for now.
+
+The workflow is manual-only using:
+
+```yaml
+on:
+  workflow_dispatch:
+```
+
+Automatic push and pull request triggers can be re-enabled later after the framework is fully stable.
 
 ---
 
-## AI Validation Types
+## Phase 1 Completion Criteria
 
-| Validation | Purpose |
-|---|---|
-| Relevance validation | Checks whether the response is related to the prompt |
-| AI safety behavior validation | Checks whether restricted prompts receive an appropriate response |
-| Professional tone validation | Checks whether the answer is suitable for business use |
-| Unsupported-claim indicator check | Flags risky terms that may suggest unsupported claims |
-| Latency validation | Ensures AI response is within SLA |
-| Provider routing validation | Allows mock, OpenAI, and Gemini client routing |
+Phase 1 is considered stable when the framework can:
 
----
-
-## Enterprise Use Cases
-
-This framework can be extended for:
-
-- AI chatbot testing
-- Customer support bot validation
-- Internal enterprise assistant validation
-- Prompt regression testing
-- AI API contract testing
-- Safety and compliance checks
-- AI test reporting and quality dashboards
-- LLM provider comparison testing
+- Run AI tests with mock provider
+- Run API tests by profile
+- Run Web UI tests by profile
+- Run Mobile tests by profile
+- Run scenarios in parallel
+- Generate Cucumber and custom reports
+- Keep GitHub Actions manual until ready
+- Keep code modular enough to evolve into a dashboard platform
 
 ---
 
-## Interview Talking Points
+## Phase 2 Future Direction
 
-You can explain this project as:
+After Phase 1 is stable, this project can evolve into:
 
-- A Java-based enterprise AI testing framework using Cucumber BDD and TestNG
-- Designed to validate LLM/chatbot response quality, safety behavior, latency, and business relevance
-- Uses a mock AI provider for reliable CI execution without secrets
-- Includes OpenAI and Gemini provider skeletons for future live API integration
-- Uses hooks and scenario context to capture prompt, response, provider, model, status, and timing
-- Generates both Cucumber reports and custom AI execution summaries
-- Built to be extended with RAG validation, semantic scoring, and advanced reporting
+```text
+Spring Boot backend + React dashboard + test execution engine
+```
 
----
+Future platform capabilities:
 
-## Roadmap
-
-- Complete OpenAI live provider implementation
-- Complete Gemini live provider implementation
-- Add Allure / ExtentReports integration
-- Add semantic similarity scoring
-- Add Dockerized execution
-- Add Jenkins pipeline support
-- Add RAG testing module in a later version
+- Trigger test runs from UI
+- Select environment, browser, device, and tags
+- View live execution status
+- View AI/API/UI/Mobile reports
+- Store execution history
+- Add role-based access
+- Add notification integrations
 
 ---
 
