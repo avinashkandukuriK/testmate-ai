@@ -26,6 +26,8 @@ Implemented foundation:
 - Appium Java Client dependency with runnable Mobile mock sample
 - Mobile execution options for mock, local Appium, and Sauce Labs placeholders
 - Thread-local scenario/session design
+- Page Object Model for Web UI
+- Screen Object Model for Mobile
 - AI client abstraction with mock provider
 - OpenAI and Gemini provider skeletons
 - AI response validators
@@ -54,21 +56,32 @@ RAG testing is intentionally not implemented in this version.
 
 ---
 
-## Project Structure
+## Enterprise Project Structure
 
 ```text
 src/test/java/com/testmate/ai
-├── clients          # Mock, OpenAI, and Gemini AI client structure
-├── config           # Spring/Cucumber config and framework config
+├── core
+│   └── config       # Spring/Cucumber config, framework config, config reader
+├── clients          # AI client contract and provider skeletons
 ├── context          # Thread-local scenario context
-├── hooks            # Cucumber hooks
-├── mobile           # Mobile session, mock driver, local/Sauce placeholders, actions
+├── hooks            # Cucumber lifecycle hooks
+├── mobile
+│   ├── screens      # Screen Object Model classes
+│   ├── ScreenObjectManager
+│   ├── MobileSessionManager
+│   ├── MockMobileDriver
+│   ├── LocalMobileDriverFactory
+│   └── SauceLabsMobileDriverFactory
 ├── models           # AI request and response models
 ├── reporting        # Custom report generation
 ├── runners          # TestNG Cucumber runner with parallel execution
-├── stepdefs         # Cucumber step definitions and base steps
+├── stepdefs         # Cucumber step definitions
 ├── validators       # AI response validators
-└── web              # Playwright session manager, base page, actions
+└── web
+    ├── pages        # Page Object Model classes
+    ├── PageObjectManager
+    ├── WebSessionManager
+    └── WebActions
 
 src/test/resources
 ├── config           # Default framework properties
@@ -87,9 +100,9 @@ Cucumber Step Definition
    ↓
 Spring/Cucumber Test Context
    ↓
-AI/API/Web/Mobile Module
+PageObjectManager / ScreenObjectManager / AI Client Factory
    ↓
-Validator or Action Layer
+Page Object / Screen Object / Validator Layer
    ↓
 Thread-local Scenario Context
    ↓
