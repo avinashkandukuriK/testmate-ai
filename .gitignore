@@ -4,10 +4,7 @@ target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -34,5 +31,10 @@ build/
 ### VS Code ###
 .vscode/
 
-### Mac OS ###
+### Logs and Reports ###
+*.log
+allure-results/
+reports/
+
+### OS Files ###
 .DS_Store
