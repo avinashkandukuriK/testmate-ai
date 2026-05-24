@@ -5,7 +5,10 @@ import io.cucumber.testng.CucumberOptions;
 
 @CucumberOptions(
         features = "src/test/resources/features",
-        glue = "com.testmate.ai.stepdefs",
+        glue = {
+                "com.testmate.ai.stepdefs",
+                "com.testmate.ai.hooks"
+        },
         plugin = {
                 "pretty",
                 "html:target/cucumber-report.html",
