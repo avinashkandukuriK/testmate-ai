@@ -3,6 +3,7 @@ package com.testmate.ai.mobile;
 public abstract class BaseScreen {
 
     protected Object driver() {
-        return MobileSessionManager.getDriver();
+        Object driver = MobileSessionManager.getDriver();
+        return driver == null ? MobileSessionManager.start() : driver;
     }
 }
