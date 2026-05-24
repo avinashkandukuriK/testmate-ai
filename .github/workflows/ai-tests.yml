@@ -1,22 +1,15 @@
-name: TestMate AI Tests
-
-# GitHub Actions is intentionally paused for now.
-# Current behavior: manual execution only.
-# To re-enable automatic CI later, uncomment the push and pull_request triggers below.
+name: TestMate AI CI
 
 on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
-# Re-enable later when framework dependencies are stable:
-# on:
-#   push:
-#     branches: [ main ]
-#   pull_request:
-#     branches: [ main ]
-#   workflow_dispatch:
-
 jobs:
-  ai-validation-tests:
+  backend-framework-tests:
+    name: Backend and Framework Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -31,7 +24,7 @@ jobs:
           cache: maven
 
       - name: Run AI validation tests
-        run: mvn clean test -Dai.provider=mock
+        run: mvn clean test -Pai -Dai.provider=mock
 
       - name: Upload Cucumber report
         if: always()
@@ -39,6 +32,7 @@ jobs:
         with:
           name: cucumber-report
           path: target/cucumber-report.html
+          if-no-files-found: ignore
 
       - name: Upload TestMate AI reports
         if: always()
@@ -46,3 +40,27 @@ jobs:
         with:
           name: testmate-ai-reports
           path: target/testmate-ai-reports
+          if-no-files-found: ignore
+
+  frontend-build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Build frontend dashboard
+        working-directory: frontend
+        run: npm run build
