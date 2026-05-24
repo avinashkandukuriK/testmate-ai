@@ -1,12 +1,14 @@
 package com.testmate.ai.web;
 
 import com.testmate.ai.web.pages.SampleWebPage;
+import com.testmate.ai.web.pages.ParaBankPage;
 
 public final class PageObjectManager {
 
     private static final ThreadLocal<PageObjectManager> INSTANCE = ThreadLocal.withInitial(PageObjectManager::new);
 
     private SampleWebPage sampleWebPage;
+    private ParaBankPage paraBankPage;
 
     private PageObjectManager() {
     }
@@ -24,5 +26,12 @@ public final class PageObjectManager {
             sampleWebPage = new SampleWebPage();
         }
         return sampleWebPage;
+    }
+
+    public ParaBankPage paraBankPage() {
+        if (paraBankPage == null) {
+            paraBankPage = new ParaBankPage();
+        }
+        return paraBankPage;
     }
 }
