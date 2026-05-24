@@ -2,6 +2,7 @@ package com.testmate.ai.reporting;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.testmate.ai.config.FrameworkConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,7 +31,7 @@ public final class AiReportManager {
 
     public static void flushReports() {
         try {
-            Path reportDir = Path.of("target", "testmate-ai-reports");
+            Path reportDir = Path.of(FrameworkConfig.getReportOutputDir());
             Files.createDirectories(reportDir);
             writeJsonReport(reportDir.resolve("ai-execution-report.json"));
             writeMarkdownReport(reportDir.resolve("ai-execution-summary.md"));
