@@ -2,7 +2,7 @@ package com.testmate.ai.reporting;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.testmate.ai.config.FrameworkConfig;
+import com.testmate.ai.core.config.FrameworkConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -63,21 +63,6 @@ public final class AiReportManager {
                     .append(" | ")
                     .append(result.getResponseTimeMs())
                     .append(" ms |\n");
-        }
-
-        report.append("\n## Scenario Details\n\n");
-        for (AiScenarioResult result : RESULTS) {
-            report.append("### ").append(safe(result.getScenarioName())).append("\n\n");
-            report.append("- Status: ").append(safe(result.getStatus())).append("\n");
-            report.append("- Provider: ").append(safe(result.getProvider())).append("\n");
-            report.append("- Model: ").append(safe(result.getModel())).append("\n");
-            report.append("- Response Time: ").append(result.getResponseTimeMs()).append(" ms\n");
-            report.append("- Prompt: `").append(safe(result.getPrompt())).append("`\n");
-            report.append("- Validations: ").append(result.getValidations()).append("\n");
-            if (result.getFailureMessage() != null) {
-                report.append("- Failure: ").append(safe(result.getFailureMessage())).append("\n");
-            }
-            report.append("\n");
         }
 
         Files.writeString(path, report.toString());
