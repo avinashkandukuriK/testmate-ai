@@ -130,6 +130,14 @@ button.secondary {
   color: #244ac7;
 }
 
+button.table-button {
+  width: auto;
+  margin-top: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -149,6 +157,7 @@ th, td {
   border-bottom: 1px solid #e5eaf3;
   text-align: left;
   font-size: 14px;
+  vertical-align: top;
 }
 
 th {
@@ -156,12 +165,63 @@ th {
   color: #475467;
 }
 
+.mono {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: #eef2ff;
+  color: #244ac7;
+}
+
+.badge.running, .badge.queued {
+  background: #fff7e6;
+  color: #ad6800;
+}
+
+.badge.passed {
+  background: #f0fff4;
+  color: #237804;
+}
+
+.badge.failed, .badge.error {
+  background: #fff1f0;
+  color: #cf1322;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 20px;
+}
+
+.command-block, .log-panel {
+  padding: 16px;
+  border-radius: 14px;
+  background: #101828;
+  color: #e6edf7;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.log-panel {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
 @media (max-width: 820px) {
   .dashboard {
     padding: 18px;
   }
 
-  .hero, .grid {
+  .hero, .grid, .details-grid {
     grid-template-columns: 1fr;
     flex-direction: column;
   }
