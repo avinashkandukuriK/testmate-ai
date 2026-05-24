@@ -1,8 +1,12 @@
 package com.testmate.ai.platform.service;
 
+import com.testmate.ai.platform.entity.ExecutionLogEntry;
+import com.testmate.ai.platform.entity.TestExecutionEntity;
 import com.testmate.ai.platform.model.ExecutionStatusResponse;
 import com.testmate.ai.platform.model.TestRunRequest;
 import com.testmate.ai.platform.model.TestRunResponse;
+import com.testmate.ai.platform.repository.ExecutionLogRepository;
+import com.testmate.ai.platform.repository.TestExecutionRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -10,7 +14,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -21,11 +25,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TestExecutionService {
 
     private final Map<String, ExecutionStatusResponse> executions = new ConcurrentHashMap<>();
-    private final Map<String, List<String>> executionLogs = new ConcurrentHashMap<>();
     private final MavenCommandBuilder commandBuilder;
+    private final TestExecutionRepository executionRepository;
+    private final ExecutionLogRepository logRepository;
 
-    public TestExecutionService(MavenCommandBuilder commandBuilder) {
+    public TestExecutionService(MavenCommandBuilder commandBuilder,
+                                TestExecutionRepository executionRepository,
+                                ExecutionLogRepository logRepository) {
         this.commandBuilder = commandBuilder;
+        this.executionRepository = executionRepository;
+        this.logRepository = logRepository;
     }
 
     public TestRunResponse startExecution(TestRunRequest request) {
@@ -44,8 +53,7 @@ public class TestExecutionService {
         status.setReportPath("target/cucumber-report.html");
         status.setCreatedAt(now);
         status.setUpdatedAt(now);
-        executions.put(executionId, status);
-        executionLogs.put(executionId, Collections.synchronizedList(new ArrayList<>()));
+        saveStatus(status);
         appendLog(executionId, "Execution queued: " + status.getCommand());
 
         CompletableFuture.runAsync(() -> runProcess(executionId, command));
@@ -62,19 +70,28 @@ public class TestExecutionService {
     }
 
     public ExecutionStatusResponse getExecution(String executionId) {
-        return executions.get(executionId);
+        ExecutionStatusResponse cached = executions.get(executionId);
+        if (cached != null) {
+            return cached;
+        }
+        return executionRepository.findById(executionId).map(this::toResponse).orElse(null);
     }
 
     public List<ExecutionStatusResponse> getAllExecutions() {
-        return new ArrayList<>(executions.values());
+        return executionRepository.findAll().stream()
+                .map(this::toResponse)
+                .sorted(Comparator.comparing(ExecutionStatusResponse::getCreatedAt).reversed())
+                .toList();
     }
 
     public List<String> getExecutionLogs(String executionId) {
-        return executionLogs.getOrDefault(executionId, List.of());
+        return logRepository.findByExecutionIdOrderByCreatedAtAsc(executionId).stream()
+                .map(log -> log.getCreatedAt() + " | " + log.getContent())
+                .toList();
     }
 
     private void runProcess(String executionId, List<String> command) {
-        ExecutionStatusResponse status = executions.get(executionId);
+        ExecutionStatusResponse status = getExecution(executionId);
         if (status == null) {
             return;
         }
@@ -82,6 +99,7 @@ public class TestExecutionService {
         status.setStatus("RUNNING");
         status.setStartedAt(LocalDateTime.now());
         status.setUpdatedAt(LocalDateTime.now());
+        saveStatus(status);
         appendLog(executionId, "Execution started.");
 
         try {
@@ -106,12 +124,57 @@ public class TestExecutionService {
         } finally {
             status.setFinishedAt(LocalDateTime.now());
             status.setUpdatedAt(LocalDateTime.now());
+            saveStatus(status);
         }
     }
 
+    private void saveStatus(ExecutionStatusResponse response) {
+        executions.put(response.getExecutionId(), response);
+        executionRepository.save(toEntity(response));
+    }
+
     private void appendLog(String executionId, String logLine) {
-        executionLogs.computeIfAbsent(executionId, key -> Collections.synchronizedList(new ArrayList<>()))
-                .add(LocalDateTime.now() + " | " + logLine);
+        ExecutionLogEntry entry = new ExecutionLogEntry();
+        entry.setExecutionId(executionId);
+        entry.setCreatedAt(LocalDateTime.now());
+        entry.setContent(logLine);
+        logRepository.save(entry);
+    }
+
+    private TestExecutionEntity toEntity(ExecutionStatusResponse response) {
+        TestExecutionEntity entity = new TestExecutionEntity();
+        entity.setExecutionId(response.getExecutionId());
+        entity.setStatus(response.getStatus());
+        entity.setSuite(response.getSuite());
+        entity.setTags(response.getTags());
+        entity.setEnvironment(response.getEnvironment());
+        entity.setExecutionMode(response.getExecutionMode());
+        entity.setCommand(response.getCommand());
+        entity.setExitCode(response.getExitCode());
+        entity.setReportPath(response.getReportPath());
+        entity.setCreatedAt(response.getCreatedAt());
+        entity.setStartedAt(response.getStartedAt());
+        entity.setFinishedAt(response.getFinishedAt());
+        entity.setUpdatedAt(response.getUpdatedAt());
+        return entity;
+    }
+
+    private ExecutionStatusResponse toResponse(TestExecutionEntity entity) {
+        ExecutionStatusResponse response = new ExecutionStatusResponse();
+        response.setExecutionId(entity.getExecutionId());
+        response.setStatus(entity.getStatus());
+        response.setSuite(entity.getSuite());
+        response.setTags(entity.getTags());
+        response.setEnvironment(entity.getEnvironment());
+        response.setExecutionMode(entity.getExecutionMode());
+        response.setCommand(entity.getCommand());
+        response.setExitCode(entity.getExitCode());
+        response.setReportPath(entity.getReportPath());
+        response.setCreatedAt(entity.getCreatedAt());
+        response.setStartedAt(entity.getStartedAt());
+        response.setFinishedAt(entity.getFinishedAt());
+        response.setUpdatedAt(entity.getUpdatedAt());
+        return response;
     }
 
     private String defaultValue(String value, String defaultValue) {
