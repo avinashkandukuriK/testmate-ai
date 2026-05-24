@@ -1,8 +1,9 @@
 package com.testmate.ai.stepdefs;
 
 import com.testmate.ai.config.ConfigReader;
-import com.testmate.ai.web.WebActions;
+import com.testmate.ai.web.PageObjectManager;
 import com.testmate.ai.web.WebSessionManager;
+import com.testmate.ai.web.pages.SampleWebPage;
 import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -11,7 +12,7 @@ import org.testng.Assert;
 
 public class WebSampleSteps {
 
-    private final WebActions webActions = new WebActions();
+    private final SampleWebPage sampleWebPage = PageObjectManager.getInstance().sampleWebPage();
     private String capturedTitle;
 
     @Given("the web test application is configured")
@@ -23,8 +24,8 @@ public class WebSampleSteps {
     @When("I open the configured web page")
     public void iOpenTheConfiguredWebPage() {
         String baseUrl = ConfigReader.getOrDefault("web.base.url", "https://example.com");
-        webActions.navigateTo(baseUrl);
-        capturedTitle = webActions.getTitle();
+        sampleWebPage.open(baseUrl);
+        capturedTitle = sampleWebPage.getPageTitle();
     }
 
     @Then("the web page title should not be empty")
@@ -36,5 +37,6 @@ public class WebSampleSteps {
     @After("@web")
     public void closeWebSession() {
         WebSessionManager.close();
+        PageObjectManager.remove();
     }
 }
