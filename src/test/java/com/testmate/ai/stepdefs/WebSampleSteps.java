@@ -1,6 +1,6 @@
 package com.testmate.ai.stepdefs;
 
-import com.testmate.ai.config.ConfigReader;
+import com.testmate.ai.core.config.ConfigReader;
 import com.testmate.ai.web.PageObjectManager;
 import com.testmate.ai.web.WebSessionManager;
 import com.testmate.ai.web.pages.SampleWebPage;
