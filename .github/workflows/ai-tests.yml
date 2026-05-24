@@ -1,10 +1,19 @@
 name: TestMate AI Tests
 
+# GitHub Actions is intentionally paused for now.
+# Current behavior: manual execution only.
+# To re-enable automatic CI later, uncomment the push and pull_request triggers below.
+
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+
+# Re-enable later when framework dependencies are stable:
+# on:
+#   push:
+#     branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
+#   workflow_dispatch:
 
 jobs:
   ai-validation-tests:
