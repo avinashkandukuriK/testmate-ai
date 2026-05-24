@@ -22,8 +22,9 @@ Implemented foundation:
 - Parallel scenario execution through TestNG DataProvider
 - Maven profiles for AI, API, Web, Mobile, and All tests
 - RestAssured dependency for API testing
-- Playwright Java dependency and Web module skeleton
-- Appium Java Client dependency and Mobile module skeleton
+- Playwright Java dependency with runnable Web sample
+- Appium Java Client dependency with runnable Mobile mock sample
+- Mobile execution options for mock, local Appium, and Sauce Labs placeholders
 - Thread-local scenario/session design
 - AI client abstraction with mock provider
 - OpenAI and Gemini provider skeletons
@@ -61,17 +62,17 @@ src/test/java/com/testmate/ai
 ├── config           # Spring/Cucumber config and framework config
 ├── context          # Thread-local scenario context
 ├── hooks            # Cucumber hooks
-├── mobile           # Appium mobile module skeleton
+├── mobile           # Mobile session, mock driver, local/Sauce placeholders, actions
 ├── models           # AI request and response models
 ├── reporting        # Custom report generation
 ├── runners          # TestNG Cucumber runner with parallel execution
 ├── stepdefs         # Cucumber step definitions and base steps
 ├── validators       # AI response validators
-└── web              # Playwright web UI module skeleton
+└── web              # Playwright session manager, base page, actions
 
 src/test/resources
 ├── config           # Default framework properties
-├── features         # Cucumber feature files
+├── features         # Cucumber feature files for AI, Web, and Mobile samples
 └── testdata         # Sample prompt test data
 ```
 
@@ -107,19 +108,13 @@ Run AI tests:
 mvn clean test -Pai
 ```
 
-Run API tests:
-
-```bash
-mvn clean test -Papi
-```
-
-Run Web UI tests:
+Run Web UI sample tests:
 
 ```bash
 mvn clean test -Pweb
 ```
 
-Run Mobile tests:
+Run Mobile sample tests in default mock mode:
 
 ```bash
 mvn clean test -Pmobile
@@ -134,8 +129,93 @@ mvn clean test -Pall
 Run a specific Cucumber tag:
 
 ```bash
-mvn clean test -Dcucumber.filter.tags="@ai-validation"
+mvn clean test -Dcucumber.filter.tags="@web"
 ```
+
+---
+
+## Web UI Sample - Playwright
+
+The Web sample uses Playwright Java and opens the configured page from:
+
+```properties
+web.base.url=https://example.com
+web.browser=chromium
+web.headless=true
+```
+
+Run it with:
+
+```bash
+mvn clean test -Pweb
+```
+
+If Playwright browsers are not installed on the machine, install them with:
+
+```bash
+mvn exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install"
+```
+
+Supported browser config values:
+
+```text
+chromium
+firefox
+webkit
+```
+
+---
+
+## Mobile Sample - Appium / Mock / Sauce Labs Ready
+
+The Mobile sample is runnable by default using mock mode:
+
+```properties
+mobile.execution.mode=mock
+```
+
+Run it with:
+
+```bash
+mvn clean test -Pmobile
+```
+
+Execution modes:
+
+```text
+mock  - Runs without a real device or Appium server
+local - Placeholder for local Appium server execution
+sauce - Placeholder for Sauce Labs mobile execution
+```
+
+Local Appium placeholders:
+
+```properties
+mobile.execution.mode=local
+mobile.server.url=
+mobile.platform=android
+mobile.device.name=
+mobile.app.path=
+mobile.app.package=
+mobile.app.activity=
+```
+
+Sauce Labs placeholders:
+
+```properties
+mobile.execution.mode=sauce
+cloud.provider=sauce
+sauce.username=
+sauce.access.key=
+sauce.region=us-west-1
+sauce.app.url=
+sauce.build.name=TestMate-AI-Phase1
+sauce.platform.name=Android
+sauce.platform.version=
+sauce.device.name=Android GoogleAPI Emulator
+```
+
+The local and Sauce driver factories are intentionally placeholder-based until real device/app details are available.
 
 ---
 
@@ -145,8 +225,8 @@ The Cucumber TestNG runner overrides the scenario DataProvider with parallel exe
 
 ```text
 AI/API tests: designed for parallel execution
-Web UI tests: prepared for thread-local Playwright session management
-Mobile tests: prepared for thread-local Appium session management
+Web UI tests: uses thread-local Playwright session management
+Mobile tests: uses thread-local mobile session management
 ```
 
 The Maven Surefire thread count is controlled by:
@@ -195,9 +275,9 @@ Automatic push and pull request triggers can be re-enabled later after the frame
 Phase 1 is considered stable when the framework can:
 
 - Run AI tests with mock provider
-- Run API tests by profile
-- Run Web UI tests by profile
-- Run Mobile tests by profile
+- Run Web UI tests with Playwright sample
+- Run Mobile tests in default mock mode
+- Provide placeholders for local Appium and Sauce Labs execution
 - Run scenarios in parallel
 - Generate Cucumber and custom reports
 - Keep GitHub Actions manual until ready
