@@ -6,7 +6,13 @@ import org.testng.annotations.DataProvider;
 
 @CucumberOptions(
         features = "src/test/resources/features",
-        glue = "com.testmate.ai",
+        glue = {
+                "com.testmate.ai.core.config",
+                "com.testmate.ai.core.hooks",
+                "com.testmate.ai.ai.steps",
+                "com.testmate.ai.web.steps",
+                "com.testmate.ai.mobile.steps"
+        },
         plugin = {
                 "pretty",
                 "html:target/cucumber-report.html",
