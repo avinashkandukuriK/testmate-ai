@@ -5,24 +5,23 @@ import java.util.Map;
 
 public class ScenarioContext {
 
-    private static final ThreadLocal<ScenarioContext> CURRENT = ThreadLocal.withInitial(ScenarioContext::new);
-    private final Map<String, Object> data = new HashMap<>();
+    private static final ThreadLocal<Map<String, Object>> CURRENT_DATA = ThreadLocal.withInitial(HashMap::new);
 
     public static ScenarioContext current() {
-        return CURRENT.get();
+        return new ScenarioContext();
     }
 
     public static void remove() {
-        CURRENT.remove();
+        CURRENT_DATA.remove();
     }
 
     public void set(String key, Object value) {
-        data.put(key, value);
+        CURRENT_DATA.get().put(key, value);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T get(String key, Class<T> type) {
-        Object value = data.get(key);
+        Object value = CURRENT_DATA.get().get(key);
         if (value == null) {
             return null;
         }
@@ -30,6 +29,6 @@ public class ScenarioContext {
     }
 
     public void clear() {
-        data.clear();
+        CURRENT_DATA.get().clear();
     }
 }
