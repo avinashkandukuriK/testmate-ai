@@ -1,19 +1,19 @@
-# TestMate AI - Spring Boot Powered AI/API/UI/Mobile Automation Framework
+# TestMate AI - Spring Boot Powered AI/API/UI/Mobile Automation Platform
 
-TestMate AI is an enterprise-style Java automation framework for validating AI-powered applications, LLM/chatbot responses, API services, web UI flows, and mobile app flows.
+TestMate AI is an enterprise-style Java automation platform for validating AI-powered applications, LLM/chatbot responses, API services, web UI flows, and mobile app flows.
 
-This project is being built in two phases:
+The project is being built in two phases:
 
 1. Spring Boot powered AI/API/UI/Mobile automation framework
 2. Spring Boot backend + React dashboard + test execution engine
 
-The current repository focuses on Phase 1.
+The repository now contains the Phase 1 automation framework foundation and the initial Phase 2 backend/dashboard scaffold.
 
 ---
 
-## Current Phase 1 Status
+## Current Status
 
-Implemented foundation:
+Phase 1 foundation:
 
 - Java 17 + Maven
 - Spring test context for framework configuration
@@ -33,7 +33,18 @@ Implemented foundation:
 - AI response validators
 - Cucumber hooks
 - Custom JSON and Markdown report generation
-- GitHub Actions workflow kept manual-only for now
+
+Phase 2 scaffold:
+
+- Spring Boot application entry point
+- REST endpoints for framework metadata and health
+- REST endpoints for creating and viewing test execution requests
+- In-memory execution tracking service
+- React dashboard scaffold using Vite
+- Dashboard form for suite/tag/environment/mode selection
+- Dashboard execution history table
+
+GitHub Actions is intentionally manual-only for now.
 
 RAG testing is intentionally not implemented in this version.
 
@@ -42,6 +53,7 @@ RAG testing is intentionally not implemented in this version.
 ## Tech Stack
 
 - Java 17
+- Spring Boot Web + Actuator
 - Spring Boot test context
 - Maven
 - Cucumber BDD
@@ -49,6 +61,8 @@ RAG testing is intentionally not implemented in this version.
 - RestAssured
 - Playwright Java
 - Appium Java Client
+- React + Vite
+- Axios
 - Jackson
 - Lombok
 - SLF4J / Logback
@@ -59,57 +73,126 @@ RAG testing is intentionally not implemented in this version.
 ## Enterprise Project Structure
 
 ```text
+src/main/java/com/testmate/ai
+├── TestMateAiApplication.java
+└── platform
+    ├── controller      # REST controllers
+    ├── model           # API request/response DTOs
+    └── service         # Test execution service layer
+
 src/test/java/com/testmate/ai
 ├── core
-│   └── config       # Spring/Cucumber config, framework config, config reader
-├── clients          # AI client contract and provider skeletons
-├── context          # Thread-local scenario context
-├── hooks            # Cucumber lifecycle hooks
+│   └── config          # Spring/Cucumber config, framework config, config reader
+├── clients             # AI client contract and provider skeletons
+├── context             # Thread-local scenario context
+├── hooks               # Cucumber lifecycle hooks
 ├── mobile
-│   ├── screens      # Screen Object Model classes
+│   ├── screens         # Screen Object Model classes
 │   ├── ScreenObjectManager
 │   ├── MobileSessionManager
 │   ├── MockMobileDriver
 │   ├── LocalMobileDriverFactory
 │   └── SauceLabsMobileDriverFactory
-├── models           # AI request and response models
-├── reporting        # Custom report generation
-├── runners          # TestNG Cucumber runner with parallel execution
-├── stepdefs         # Cucumber step definitions
-├── validators       # AI response validators
+├── models              # AI request and response models
+├── reporting           # Custom report generation
+├── runners             # TestNG Cucumber runner with parallel execution
+├── stepdefs            # Cucumber step definitions
+├── validators          # AI response validators
 └── web
-    ├── pages        # Page Object Model classes
+    ├── pages           # Page Object Model classes
     ├── PageObjectManager
     ├── WebSessionManager
     └── WebActions
 
 src/test/resources
-├── config           # Default framework properties
-├── features         # Cucumber feature files for AI, Web, and Mobile samples
-└── testdata         # Sample prompt test data
+├── config              # Default framework properties
+├── features            # Cucumber feature files for AI, Web, and Mobile samples
+└── testdata            # Sample prompt test data
+
+frontend
+├── index.html
+├── package.json
+├── .env.example
+└── src
+    ├── App.jsx
+    └── styles.css
 ```
 
 ---
 
-## Framework Flow
+## Backend API Endpoints
+
+Start backend:
+
+```bash
+mvn spring-boot:run
+```
+
+Health:
+
+```bash
+GET http://localhost:8080/api/framework/health
+```
+
+Framework metadata:
+
+```bash
+GET http://localhost:8080/api/framework/metadata
+```
+
+Start execution:
+
+```bash
+POST http://localhost:8080/api/executions
+```
+
+Sample request:
+
+```json
+{
+  "suite": "ai",
+  "tags": "@ai-validation",
+  "environment": "local",
+  "executionMode": "mock"
+}
+```
+
+Get all executions:
+
+```bash
+GET http://localhost:8080/api/executions
+```
+
+Get execution by id:
+
+```bash
+GET http://localhost:8080/api/executions/{executionId}
+```
+
+---
+
+## React Dashboard
+
+Start dashboard:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend environment example:
 
 ```text
-Feature File
-   ↓
-Cucumber Step Definition
-   ↓
-Spring/Cucumber Test Context
-   ↓
-PageObjectManager / ScreenObjectManager / AI Client Factory
-   ↓
-Page Object / Screen Object / Validator Layer
-   ↓
-Thread-local Scenario Context
-   ↓
-Cucumber Hooks
-   ↓
-Cucumber Report + TestMate AI Reports
+VITE_API_BASE_URL=http://localhost:8080
 ```
+
+The current dashboard can:
+
+- Load framework metadata
+- Create execution requests
+- View in-memory execution history
+- Select suite, tags, environment, and execution mode
 
 ---
 
@@ -163,7 +246,7 @@ Run it with:
 mvn clean test -Pweb
 ```
 
-If Playwright browsers are not installed on the machine, install them with:
+Install Playwright browsers if needed:
 
 ```bash
 mvn exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install"
@@ -201,18 +284,6 @@ local - Placeholder for local Appium server execution
 sauce - Placeholder for Sauce Labs mobile execution
 ```
 
-Local Appium placeholders:
-
-```properties
-mobile.execution.mode=local
-mobile.server.url=
-mobile.platform=android
-mobile.device.name=
-mobile.app.path=
-mobile.app.package=
-mobile.app.activity=
-```
-
 Sauce Labs placeholders:
 
 ```properties
@@ -226,44 +297,6 @@ sauce.build.name=TestMate-AI-Phase1
 sauce.platform.name=Android
 sauce.platform.version=
 sauce.device.name=Android GoogleAPI Emulator
-```
-
-The local and Sauce driver factories are intentionally placeholder-based until real device/app details are available.
-
----
-
-## Parallel Execution
-
-The Cucumber TestNG runner overrides the scenario DataProvider with parallel execution enabled.
-
-```text
-AI/API tests: designed for parallel execution
-Web UI tests: uses thread-local Playwright session management
-Mobile tests: uses thread-local mobile session management
-```
-
-The Maven Surefire thread count is controlled by:
-
-```text
-surefire.thread.count=4
-```
-
----
-
-## Reports
-
-Standard Cucumber reports:
-
-```text
-target/cucumber-report.html
-target/cucumber-report.json
-```
-
-Custom TestMate AI reports:
-
-```text
-target/testmate-ai-reports/ai-execution-report.json
-target/testmate-ai-reports/ai-execution-summary.md
 ```
 
 ---
@@ -283,38 +316,15 @@ Automatic push and pull request triggers can be re-enabled later after the frame
 
 ---
 
-## Phase 1 Completion Criteria
+## Next Phase 2 Work
 
-Phase 1 is considered stable when the framework can:
-
-- Run AI tests with mock provider
-- Run Web UI tests with Playwright sample
-- Run Mobile tests in default mock mode
-- Provide placeholders for local Appium and Sauce Labs execution
-- Run scenarios in parallel
-- Generate Cucumber and custom reports
-- Keep GitHub Actions manual until ready
-- Keep code modular enough to evolve into a dashboard platform
-
----
-
-## Phase 2 Future Direction
-
-After Phase 1 is stable, this project can evolve into:
-
-```text
-Spring Boot backend + React dashboard + test execution engine
-```
-
-Future platform capabilities:
-
-- Trigger test runs from UI
-- Select environment, browser, device, and tags
-- View live execution status
-- View AI/API/UI/Mobile reports
-- Store execution history
-- Add role-based access
-- Add notification integrations
+- Connect REST execution service to the real Maven/Cucumber execution engine
+- Persist execution history in a database
+- Add report download APIs
+- Add live execution log streaming
+- Add authentication and role-based access
+- Add dashboard report viewer
+- Add environment and device management screens
 
 ---
 
