@@ -38,6 +38,15 @@ public class TestExecutionController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{executionId}/logs")
+    public ResponseEntity<List<String>> getExecutionLogs(@PathVariable String executionId) {
+        ExecutionStatusResponse response = testExecutionService.getExecution(executionId);
+        if (response == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(testExecutionService.getExecutionLogs(executionId));
+    }
+
     @GetMapping
     public ResponseEntity<List<ExecutionStatusResponse>> getExecutions() {
         return ResponseEntity.ok(testExecutionService.getAllExecutions());
