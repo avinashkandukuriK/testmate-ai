@@ -1,6 +1,6 @@
 package com.testmate.ai.clients;
 
-import com.testmate.ai.config.FrameworkConfig;
+import com.testmate.ai.core.config.FrameworkConfig;
 
 public final class AiClientFactory {
 
