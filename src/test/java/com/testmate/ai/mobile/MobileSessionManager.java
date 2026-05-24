@@ -1,6 +1,6 @@
 package com.testmate.ai.mobile;
 
-import com.testmate.ai.config.ConfigReader;
+import com.testmate.ai.core.config.ConfigReader;
 
 public final class MobileSessionManager {
 
