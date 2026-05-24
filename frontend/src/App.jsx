@@ -8,6 +8,8 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080
 function App() {
   const [metadata, setMetadata] = useState(null);
   const [executions, setExecutions] = useState([]);
+  const [selectedExecution, setSelectedExecution] = useState(null);
+  const [logs, setLogs] = useState([]);
   const [form, setForm] = useState({ suite: 'ai', tags: '@ai-validation', environment: 'local', executionMode: 'mock' });
   const [message, setMessage] = useState('');
 
@@ -44,6 +46,17 @@ function App() {
     }
   };
 
+  const selectExecution = async (executionId) => {
+    try {
+      const statusResponse = await axios.get(`${API_BASE_URL}/api/executions/${executionId}`);
+      const logResponse = await axios.get(`${API_BASE_URL}/api/executions/${executionId}/logs`);
+      setSelectedExecution(statusResponse.data);
+      setLogs(logResponse.data);
+    } catch (error) {
+      setMessage('Unable to load execution details.');
+    }
+  };
+
   const updateForm = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
@@ -54,7 +67,7 @@ function App() {
         <div>
           <p className="eyebrow">TestMate AI</p>
           <h1>AI/API/UI/Mobile Test Execution Dashboard</h1>
-          <p className="subtitle">Phase 2 starter dashboard for triggering test runs and viewing execution history.</p>
+          <p className="subtitle">Phase 2 dashboard for triggering framework test runs and viewing execution status, command output, and logs.</p>
         </div>
         <span className="status-pill">Spring Boot + React</span>
       </section>
@@ -117,23 +130,44 @@ function App() {
               <th>Suite</th>
               <th>Tags</th>
               <th>Environment</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {executions.length === 0 ? (
-              <tr><td colSpan="5">No executions yet.</td></tr>
+              <tr><td colSpan="6">No executions yet.</td></tr>
             ) : executions.map((execution) => (
               <tr key={execution.executionId}>
-                <td>{execution.executionId}</td>
-                <td>{execution.status}</td>
+                <td className="mono">{execution.executionId}</td>
+                <td><span className={`badge ${execution.status?.toLowerCase()}`}>{execution.status}</span></td>
                 <td>{execution.suite}</td>
                 <td>{execution.tags}</td>
                 <td>{execution.environment}</td>
+                <td><button className="table-button" onClick={() => selectExecution(execution.executionId)}>View</button></td>
               </tr>
             ))}
           </tbody>
         </table>
       </section>
+
+      {selectedExecution && (
+        <section className="card full-width">
+          <div className="section-header">
+            <h2>Execution Details</h2>
+            <button className="secondary" onClick={() => selectExecution(selectedExecution.executionId)}>Refresh Logs</button>
+          </div>
+          <div className="details-grid">
+            <p><strong>ID:</strong> <span className="mono">{selectedExecution.executionId}</span></p>
+            <p><strong>Status:</strong> {selectedExecution.status}</p>
+            <p><strong>Exit Code:</strong> {selectedExecution.exitCode ?? 'N/A'}</p>
+            <p><strong>Report:</strong> {selectedExecution.reportPath || 'N/A'}</p>
+          </div>
+          <p><strong>Command:</strong></p>
+          <pre className="command-block">{selectedExecution.command || 'N/A'}</pre>
+          <p><strong>Logs:</strong></p>
+          <pre className="log-panel">{logs.length === 0 ? 'No logs captured yet.' : logs.join('\n')}</pre>
+        </section>
+      )}
     </main>
   );
 }
