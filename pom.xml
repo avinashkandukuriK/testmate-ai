@@ -8,23 +8,50 @@
     <artifactId>testmate-ai</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>TestMate AI</name>
-    <description>Enterprise AI Testing Framework using Java, Cucumber, TestNG, RestAssured, and AI response validation</description>
+    <description>Spring Boot powered enterprise AI/API/UI/Mobile automation framework</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.boot.version>3.3.4</spring.boot.version>
         <ai.provider>mock</ai.provider>
         <cucumber.version>7.18.1</cucumber.version>
         <testng.version>7.10.2</testng.version>
         <restassured.version>5.5.0</restassured.version>
         <jackson.version>2.17.2</jackson.version>
+        <playwright.version>1.47.0</playwright.version>
+        <appium.version>9.3.0</appium.version>
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.16</slf4j.version>
         <logback.version>1.5.8</logback.version>
+        <cucumber.filter.tags>not @manual</cucumber.filter.tags>
+        <surefire.thread.count>4</surefire.thread.count>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
@@ -34,6 +61,12 @@
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-testng</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-spring</artifactId>
             <version>${cucumber.version}</version>
             <scope>test</scope>
         </dependency>
@@ -53,6 +86,18 @@
             <groupId>io.rest-assured</groupId>
             <artifactId>json-schema-validator</artifactId>
             <version>${restassured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>${playwright.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.appium</groupId>
+            <artifactId>java-client</artifactId>
+            <version>${appium.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -113,11 +158,48 @@
                     <includes>
                         <include>**/*Runner.java</include>
                     </includes>
+                    <parallel>methods</parallel>
+                    <threadCount>${surefire.thread.count}</threadCount>
+                    <useUnlimitedThreads>false</useUnlimitedThreads>
                     <systemPropertyVariables>
                         <ai.provider>${ai.provider}</ai.provider>
+                        <cucumber.filter.tags>${cucumber.filter.tags}</cucumber.filter.tags>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>ai</id>
+            <properties>
+                <cucumber.filter.tags>@ai-validation or @ai-safety</cucumber.filter.tags>
+            </properties>
+        </profile>
+        <profile>
+            <id>api</id>
+            <properties>
+                <cucumber.filter.tags>@api</cucumber.filter.tags>
+            </properties>
+        </profile>
+        <profile>
+            <id>web</id>
+            <properties>
+                <cucumber.filter.tags>@web</cucumber.filter.tags>
+            </properties>
+        </profile>
+        <profile>
+            <id>mobile</id>
+            <properties>
+                <cucumber.filter.tags>@mobile</cucumber.filter.tags>
+            </properties>
+        </profile>
+        <profile>
+            <id>all</id>
+            <properties>
+                <cucumber.filter.tags>not @manual</cucumber.filter.tags>
+            </properties>
+        </profile>
+    </profiles>
 </project>
