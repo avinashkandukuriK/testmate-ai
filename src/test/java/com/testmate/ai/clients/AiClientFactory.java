@@ -12,6 +12,12 @@ public final class AiClientFactory {
         if (provider == null || provider.equalsIgnoreCase("mock")) {
             return new MockAiClient();
         }
-        throw new IllegalArgumentException("AI provider is not configured: " + provider);
+        if (provider.equalsIgnoreCase("openai")) {
+            return new OpenAiClient();
+        }
+        if (provider.equalsIgnoreCase("gemini")) {
+            return new GeminiClient();
+        }
+        throw new IllegalArgumentException("Unsupported AI provider: " + provider);
     }
 }
