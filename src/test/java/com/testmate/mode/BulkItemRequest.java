@@ -13,5 +13,18 @@ public class BulkItemRequest {
     private String effectiveDate;
     private String outOfStockDate;
 
-    // Getters, Setters, Constructors
+    public BulkItemRequest() {
+    }
+
+    public BulkItemRequest(List<String> itemNumbers,
+                           List<String> clubNumbers,
+                           String status,
+                           String effectiveDate,
+                           String outOfStockDate) {
+        this.itemNumbers = itemNumbers;
+        this.clubNumbers = clubNumbers;
+        this.status = status;
+        this.effectiveDate = effectiveDate;
+        this.outOfStockDate = outOfStockDate;
+    }
 }

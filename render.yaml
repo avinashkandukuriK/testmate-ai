@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: testmate-ai-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/framework/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: TESTMATE_API_KEY
+        sync: false
+      - key: TESTMATE_ALLOWED_ORIGINS
+        sync: false
+      - key: TESTMATE_EXECUTION_CORE_POOL_SIZE
+        value: 1
+      - key: TESTMATE_EXECUTION_MAX_POOL_SIZE
+        value: 2
+      - key: TESTMATE_EXECUTION_QUEUE_CAPACITY
+        value: 5
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: SPRING_DATASOURCE_DRIVER
+        value: org.postgresql.Driver
+      - key: SPRING_JPA_DATABASE_PLATFORM
+        value: org.hibernate.dialect.PostgreSQLDialect
+      - key: SPRING_DATASOURCE_MAX_POOL_SIZE
+        value: 5
+      - key: SPRING_DATASOURCE_MIN_IDLE
+        value: 1

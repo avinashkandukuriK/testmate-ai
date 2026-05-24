@@ -4,6 +4,11 @@ import axios from 'axios';
 import './styles.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+const API_KEY = import.meta.env.VITE_TESTMATE_API_KEY || '';
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: API_KEY ? { 'X-TestMate-Api-Key': API_KEY } : {},
+});
 
 function App() {
   const [metadata, setMetadata] = useState(null);
@@ -20,7 +25,7 @@ function App() {
 
   const loadMetadata = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/framework/metadata`);
+      const response = await api.get('/api/framework/metadata');
       setMetadata(response.data);
     } catch (error) {
       setMessage('Backend metadata is not available yet. Start Spring Boot on port 8080.');
@@ -29,7 +34,7 @@ function App() {
 
   const loadExecutions = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/executions`);
+      const response = await api.get('/api/executions');
       setExecutions(response.data);
     } catch (error) {
       setExecutions([]);
@@ -38,7 +43,7 @@ function App() {
 
   const startExecution = async () => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/executions`, form);
+      const response = await api.post('/api/executions', form);
       setMessage(`Execution queued: ${response.data.executionId}`);
       await loadExecutions();
     } catch (error) {
@@ -48,8 +53,8 @@ function App() {
 
   const selectExecution = async (executionId) => {
     try {
-      const statusResponse = await axios.get(`${API_BASE_URL}/api/executions/${executionId}`);
-      const logResponse = await axios.get(`${API_BASE_URL}/api/executions/${executionId}/logs`);
+      const statusResponse = await api.get(`/api/executions/${executionId}`);
+      const logResponse = await api.get(`/api/executions/${executionId}/logs`);
       setSelectedExecution(statusResponse.data);
       setLogs(logResponse.data);
     } catch (error) {

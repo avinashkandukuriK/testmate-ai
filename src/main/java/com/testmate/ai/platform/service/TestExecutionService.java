@@ -8,18 +8,21 @@ import com.testmate.ai.platform.model.TestRunResponse;
 import com.testmate.ai.platform.repository.ExecutionLogRepository;
 import com.testmate.ai.platform.repository.TestExecutionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+
+import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
 
 @Service
 public class TestExecutionService {
@@ -28,27 +31,33 @@ public class TestExecutionService {
     private final MavenCommandBuilder commandBuilder;
     private final TestExecutionRepository executionRepository;
     private final ExecutionLogRepository logRepository;
+    private final Executor testExecutionExecutor;
 
     public TestExecutionService(MavenCommandBuilder commandBuilder,
                                 TestExecutionRepository executionRepository,
-                                ExecutionLogRepository logRepository) {
+                                ExecutionLogRepository logRepository,
+                                Executor testExecutionExecutor) {
         this.commandBuilder = commandBuilder;
         this.executionRepository = executionRepository;
         this.logRepository = logRepository;
+        this.testExecutionExecutor = testExecutionExecutor;
     }
 
     public TestRunResponse startExecution(TestRunRequest request) {
         String executionId = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
         List<String> command = commandBuilder.build(request);
+        String suite = commandBuilder.normalizeSuite(request.getSuite());
+        String executionMode = commandBuilder.normalizeExecutionMode(request.getExecutionMode());
+        String tags = defaultValue(request.getTags(), commandBuilder.defaultTagsFor(suite));
 
         ExecutionStatusResponse status = new ExecutionStatusResponse();
         status.setExecutionId(executionId);
         status.setStatus("QUEUED");
-        status.setSuite(defaultValue(request.getSuite(), "ai"));
-        status.setTags(defaultValue(request.getTags(), "@ai-validation or @ai-safety"));
+        status.setSuite(suite);
+        status.setTags(tags);
         status.setEnvironment(defaultValue(request.getEnvironment(), "local"));
-        status.setExecutionMode(defaultValue(request.getExecutionMode(), "mock"));
+        status.setExecutionMode(executionMode);
         status.setCommand(commandBuilder.asDisplayCommand(command));
         status.setReportPath("target/cucumber-report.html");
         status.setCreatedAt(now);
@@ -56,7 +65,15 @@ public class TestExecutionService {
         saveStatus(status);
         appendLog(executionId, "Execution queued: " + status.getCommand());
 
-        CompletableFuture.runAsync(() -> runProcess(executionId, command));
+        try {
+            CompletableFuture.runAsync(() -> runProcess(executionId, command), testExecutionExecutor);
+        } catch (RuntimeException e) {
+            status.setStatus("REJECTED");
+            status.setUpdatedAt(LocalDateTime.now());
+            saveStatus(status);
+            appendLog(executionId, "Execution rejected: executor queue is full.");
+            throw new ResponseStatusException(TOO_MANY_REQUESTS, "Too many test executions are already queued.");
+        }
 
         TestRunResponse response = new TestRunResponse();
         response.setExecutionId(executionId);

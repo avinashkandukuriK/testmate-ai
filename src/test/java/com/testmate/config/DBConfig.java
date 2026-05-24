@@ -5,14 +5,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
 
 @Configuration
 public class DBConfig {
@@ -34,7 +33,7 @@ public class DBConfig {
             EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(db2DataSource())
-                .packages("com.testmate.db.db2.entity")
+                .packages("com.testmate.db.db2")
                 .persistenceUnit("db2")
                 .build();
     }
@@ -62,7 +61,7 @@ public class DBConfig {
             EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(sqlServerDataSource())
-                .packages("com.testmate.db.sql.entity")
+                .packages("com.testmate.db.sql")
                 .persistenceUnit("sql")
                 .build();
     }

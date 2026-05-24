@@ -8,10 +8,8 @@ import org.testng.annotations.DataProvider;
         features = "src/test/resources/features",
         glue = {
                 "com.testmate.ai.core.config",
-                "com.testmate.ai.core.hooks",
-                "com.testmate.ai.ai.steps",
-                "com.testmate.ai.web.steps",
-                "com.testmate.ai.mobile.steps"
+                "com.testmate.ai.hooks",
+                "com.testmate.ai.stepdefs"
         },
         plugin = {
                 "pretty",
