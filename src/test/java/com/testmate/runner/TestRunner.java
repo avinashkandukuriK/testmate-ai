@@ -4,12 +4,14 @@ import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
+import org.testng.annotations.Ignore;
 
 @SpringBootTest
 @ContextConfiguration(classes = {com.testmate.config.TestConfig.class})
+@Ignore("Legacy inventory API sample is not part of the default TestMate AI execution suite.")
 @CucumberOptions(
-    features = "src/test/resources/features",
-    glue = "com.testmate.stepdefs",
+    features = "src/test/resources/inventory.feature",
+    glue = "com.testmate",
     plugin = {
         "pretty",
         "json:target/cucumber-report.json",

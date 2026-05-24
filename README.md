@@ -207,7 +207,7 @@ Start dashboard:
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
@@ -215,6 +215,7 @@ Frontend environment example:
 
 ```text
 VITE_API_BASE_URL=http://localhost:8080
+VITE_TESTMATE_API_KEY=
 ```
 
 The current dashboard can:
@@ -224,6 +225,8 @@ The current dashboard can:
 - View in-memory execution history
 - Select suite, tags, environment, and execution mode
 - View selected execution status, command, exit code, and logs
+
+For Render, Vercel, and Supabase deployment details, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ---
 
