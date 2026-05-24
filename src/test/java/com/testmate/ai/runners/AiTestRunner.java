@@ -2,13 +2,11 @@ package com.testmate.ai.runners;
 
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
+import org.testng.annotations.DataProvider;
 
 @CucumberOptions(
         features = "src/test/resources/features",
-        glue = {
-                "com.testmate.ai.stepdefs",
-                "com.testmate.ai.hooks"
-        },
+        glue = "com.testmate.ai",
         plugin = {
                 "pretty",
                 "html:target/cucumber-report.html",
@@ -17,4 +15,10 @@ import io.cucumber.testng.CucumberOptions;
         monochrome = true
 )
 public class AiTestRunner extends AbstractTestNGCucumberTests {
+
+    @Override
+    @DataProvider(parallel = true)
+    public Object[][] scenarios() {
+        return super.scenarios();
+    }
 }
