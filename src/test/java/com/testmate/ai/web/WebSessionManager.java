@@ -5,7 +5,6 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import com.testmate.ai.core.config.ConfigReader;
 
 public final class WebSessionManager {
 
@@ -59,20 +58,43 @@ public final class WebSessionManager {
     }
 
     private static Browser createBrowser(Playwright playwright) {
-        String browserName = ConfigReader.getOrDefault("web.browser", "chromium");
-        boolean headless = Boolean.parseBoolean(ConfigReader.getOrDefault("web.headless", "true"));
-        int slowMo = Integer.parseInt(ConfigReader.getOrDefault("web.slow.mo.ms", "0"));
+        WebBrowserConfig config = WebBrowserConfig.fromRuntime();
+        BrowserType browserType = browserType(playwright, config.browserName());
+
+        if (config.executionMode() == WebBrowserConfig.ExecutionMode.REMOTE) {
+            BrowserType.ConnectOptions options = new BrowserType.ConnectOptions()
+                    .setSlowMo(config.slowMoMs())
+                    .setTimeout(config.timeoutMs());
+            if (!config.remoteHeaders().isEmpty()) {
+                options.setHeaders(config.remoteHeaders());
+            }
+            return browserType.connect(config.remoteEndpoint(), options);
+        }
+
+        if (config.executionMode() == WebBrowserConfig.ExecutionMode.CDP) {
+            BrowserType.ConnectOverCDPOptions options = new BrowserType.ConnectOverCDPOptions()
+                    .setSlowMo(config.slowMoMs())
+                    .setTimeout(config.timeoutMs());
+            if (!config.remoteHeaders().isEmpty()) {
+                options.setHeaders(config.remoteHeaders());
+            }
+            return playwright.chromium().connectOverCDP(config.remoteEndpoint(), options);
+        }
 
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
-                .setHeadless(headless)
-                .setSlowMo(slowMo);
+                .setHeadless(config.headless())
+                .setSlowMo(config.slowMoMs());
 
+        return browserType.launch(options);
+    }
+
+    private static BrowserType browserType(Playwright playwright, String browserName) {
         if ("firefox".equalsIgnoreCase(browserName)) {
-            return playwright.firefox().launch(options);
+            return playwright.firefox();
         }
         if ("webkit".equalsIgnoreCase(browserName)) {
-            return playwright.webkit().launch(options);
+            return playwright.webkit();
         }
-        return playwright.chromium().launch(options);
+        return playwright.chromium();
     }
 }

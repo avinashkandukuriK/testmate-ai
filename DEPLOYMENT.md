@@ -30,6 +30,26 @@ SPRING_DATASOURCE_MAX_POOL_SIZE=5
 SPRING_DATASOURCE_MIN_IDLE=1
 ```
 
+Remote Playwright browser execution:
+
+```text
+WEB_EXECUTION_MODE=remote
+WEB_BROWSER=chromium
+WEB_REMOTE_WS_ENDPOINT=wss://your-playwright-browser-service/ws
+WEB_REMOTE_CONNECT_TIMEOUT_MS=30000
+WEB_REMOTE_HEADERS=Authorization=Bearer <token>
+```
+
+For Chromium CDP endpoints, use:
+
+```text
+WEB_EXECUTION_MODE=cdp
+WEB_BROWSER=chromium
+WEB_REMOTE_CDP_ENDPOINT=http://your-browser-service:9222
+```
+
+Keep `WEB_EXECUTION_MODE=local` when Render should launch browsers in the backend container itself. Use `remote` or `cdp` when browser capacity is provided by a dedicated Playwright browser service/grid.
+
 Health check:
 
 ```text
@@ -38,7 +58,7 @@ GET /api/framework/health
 
 ## Vercel Frontend
 
-Set the Vercel project root directory to `frontend`.
+Deploy from the repository root. The root `vercel.json` builds the Vite dashboard from `frontend/` and publishes `frontend/dist`.
 
 Required environment variables:
 
@@ -50,9 +70,9 @@ VITE_TESTMATE_API_KEY=<same value as TESTMATE_API_KEY>
 Build settings:
 
 ```text
-Build Command: npm run build
-Output Directory: dist
-Install Command: npm ci
+Build Command: cd frontend && npm run build
+Output Directory: frontend/dist
+Install Command: cd frontend && npm ci
 Node.js: 20.19.0 or newer
 ```
 

@@ -269,6 +269,7 @@ mvn clean test -Dcucumber.filter.tags="@web"
 The Web sample uses Playwright Java and opens the configured page from:
 
 ```properties
+web.execution.mode=local
 web.base.url=https://example.com
 web.browser=chromium
 web.headless=true
@@ -292,6 +293,29 @@ Supported browser config values:
 chromium
 firefox
 webkit
+```
+
+Remote browser execution is available for Playwright-compatible browser servers:
+
+```properties
+web.execution.mode=remote
+web.remote.ws.endpoint=wss://your-playwright-browser-service/ws
+web.remote.connect.timeout.ms=30000
+web.remote.headers=Authorization=Bearer token
+```
+
+Chromium CDP endpoints are also supported:
+
+```properties
+web.execution.mode=cdp
+web.browser=chromium
+web.remote.cdp.endpoint=http://your-browser-service:9222
+```
+
+From the dashboard, choose `Web` and set execution mode to `Remote Playwright` or `Remote Chromium CDP`. For ParaBank smoke tests, use the tag expression:
+
+```text
+@parabank
 ```
 
 ---

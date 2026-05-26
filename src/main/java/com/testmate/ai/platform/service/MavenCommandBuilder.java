@@ -15,7 +15,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public class MavenCommandBuilder {
 
     private static final Set<String> ALLOWED_SUITES = Set.of("ai", "api", "web", "mobile", "all");
-    private static final Set<String> ALLOWED_EXECUTION_MODES = Set.of("mock", "local", "sauce");
+    private static final Set<String> ALLOWED_EXECUTION_MODES = Set.of("mock", "local", "remote", "cdp", "sauce");
     private static final int MAX_TAG_EXPRESSION_LENGTH = 200;
 
     public List<String> build(TestRunRequest request) {
@@ -32,6 +32,9 @@ public class MavenCommandBuilder {
         command.add("-Dcucumber.filter.tags=" + tags);
         command.add("-Dai.provider=mock");
         command.add("-Dexecution.mode=" + executionMode);
+        if ("web".equals(suite) && Set.of("local", "remote", "cdp").contains(executionMode)) {
+            command.add("-Dweb.execution.mode=" + executionMode);
+        }
         return command;
     }
 
