@@ -29,7 +29,7 @@ public class FrameworkController {
                 "backend", "Spring Boot",
                 "frameworkModules", List.of("AI", "API", "WEB", "MOBILE"),
                 "supportedProfiles", List.of("ai", "api", "web", "mobile", "all"),
-                "executionModes", List.of("mock", "local", "sauce")
+                "executionModes", List.of("mock", "local", "remote", "cdp", "sauce")
         );
     }
 }

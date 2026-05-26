@@ -19,6 +19,20 @@ services:
         value: 2
       - key: TESTMATE_EXECUTION_QUEUE_CAPACITY
         value: 5
+      - key: WEB_EXECUTION_MODE
+        value: local
+      - key: WEB_BROWSER
+        value: chromium
+      - key: WEB_HEADLESS
+        value: true
+      - key: WEB_REMOTE_WS_ENDPOINT
+        sync: false
+      - key: WEB_REMOTE_CDP_ENDPOINT
+        sync: false
+      - key: WEB_REMOTE_CONNECT_TIMEOUT_MS
+        value: 30000
+      - key: WEB_REMOTE_HEADERS
+        sync: false
       - key: SPRING_DATASOURCE_URL
         sync: false
       - key: SPRING_DATASOURCE_USERNAME

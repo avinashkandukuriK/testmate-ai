@@ -115,6 +115,8 @@ function App() {
           <select value={form.executionMode} onChange={(event) => updateForm('executionMode', event.target.value)}>
             <option value="mock">Mock</option>
             <option value="local">Local</option>
+            <option value="remote">Remote Playwright</option>
+            <option value="cdp">Remote Chromium CDP</option>
             <option value="sauce">Sauce Labs</option>
           </select>
 
